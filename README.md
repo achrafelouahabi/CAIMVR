@@ -47,13 +47,13 @@
 L_total = L_ida + λ₁·L_bp + λ₂·(L_mp1 + L_mp2) + L_lsc + L_sd
 ```
 
-| Loss | Description | File |
-|------|-------------|------|
-| `L_ida` | Instance Distribution Alignment | `loss.py` |
-| `L_bp` | Bidirectional Prediction Loss | `model.py` |
-| `L_mp` | Modality Preservation (Reconstruction) | `model.py` |
-| `L_lsc` | Latent Space Coherence | `model.py` |
-| `L_sd` | Supervised Discriminative Loss | `loss.py` |
+| Loss | Description |
+|------|-------------|
+| `L_ida` | Instance Distribution Alignment |
+| `L_bp` | Bidirectional Prediction Loss |
+| `L_mp` | Modality Preservation (Reconstruction) |
+| `L_lsc` | Latent Space Coherence |
+| `L_sd` | Supervised Discriminative Loss |
 
 ---
 
