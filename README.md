@@ -289,11 +289,11 @@ config = dict(
 
 ### Classification Performance (η = 0.3)
 
-| Dataset | ACC | Precision | F1-Score | AUC |
-|---------|-----|-----------|----------|-----|
-| Caltech101-7 | 98.51 ± 0.46 | 93.20 ± 2.40 | 97.60 ± 0.49 | - |
-| Handwritten | 98.60 ± 0.56 | 98.40 ± 0.49 | 99.40 ± 0.49 | - |
-| BBCSport | 97.43 ± 2.49 | 97.40 ± 2.80 | 98.40 ± 1.74 | - |
+| Dataset | ACC | Precision | AUC |
+|---------|-----|-----------|----------|
+| Caltech101-7 | 98.51 ± 0.46 | 93.20 ± 2.40 | 97.60 ± 0.49 |
+| Handwritten | 98.60 ± 0.56 | 98.40 ± 0.49 | 99.40 ± 0.49 |
+| BBCSport | 97.43 ± 2.49 | 97.40 ± 2.80 | 98.40 ± 1.74 |
 
 ### Human Action Recognition
 
