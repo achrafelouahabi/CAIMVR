@@ -330,10 +330,10 @@ If you find this work useful, please cite:
 ```bibtex
 @article{elouahabi2025caimvr,
   title={Cross-attention mechanism for robust representation learning in incomplete multi-view datasets},
-  author={El Ouahabi, Achraf and Benaddy, Mohamed and Hadri, Aissam},
-  journal={[Journal Name]},
+  author={El Ouahabi Achraf, Benaddy Mohamed and Hadri Aissam},
+  journal={[]},
   year={2025},
-  institution={Ibnou Zohr University, Agadir, Morocco}
+  institution={Ibn Zohr University, Agadir, Morocco}
 }
 ```
 
