@@ -219,7 +219,6 @@ python run_HAR.py \
 | Argument | Description | Default |
 |----------|-------------|---------|
 | `--dataset` | Dataset ID (see tables above) | 0 |
-| `--missing_rate` | Proportion of missing views (η) | 0.5 |
 | `--devices` | GPU device ID | 0 |
 | `--test_time` | Number of test runs | 5 |
 | `--print_num` | Print interval (epochs) | 50 |
@@ -252,29 +251,16 @@ config = dict(
         activations1='gelu',
         activations2='gelu',
         batchnorm=True,
-        heads=16            # Number of attention heads
     ),
     Prediction=dict(
         arch1=[128, 256, 128],
         arch2=[128, 256, 128],
         activations1='gelu',
         activations2='gelu',
-        heads=8
     )
 )
 ```
 
-### Key Hyperparameters
-
-| Parameter | Description | Recommended Range |
-|-----------|-------------|-------------------|
-| `alpha` | Instance alignment strength | 10 |
-| `lambda1` | Prediction loss weight | 0.1 - 0.5 |
-| `lambda2` | Reconstruction loss weight | 0.1 - 0.5 |
-| `heads` | Number of attention heads | 1 - 16 |
-| `lr` | Learning rate | 1e-4 - 5e-4 |
-
----
 
 ## 📈 Experimental Results
 
@@ -359,8 +345,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Datasets Repository](https://github.com/achrafelouahabi/DM/)
 - [Paper (Coming Soon)](#)
 
----
 
-<p align="center">
-  <b>⭐ If you find this repository helpful, please consider giving it a star! ⭐</b>
-</p>
+
