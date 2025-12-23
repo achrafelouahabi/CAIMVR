@@ -29,7 +29,7 @@
 ## 🏗️ Architecture
 
 <p align="center">
-  <img src="architecture.png" alt="CAIMVR Architecture" width="800">
+  <img src="architecture_n.png" alt="CAIMVR Architecture" width="800">
 </p>
 
 ### Model Components
