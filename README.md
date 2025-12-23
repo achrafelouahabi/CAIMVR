@@ -34,12 +34,12 @@
 
 ### Model Components
 
-| Component | Description | Implementation |
-|-----------|-------------|----------------|
-| **Autoencoder** | View-specific encoder-decoder with self-attention | `Autoencoder` class in `model.py` |
-| **Cross-View Predictor** | Bidirectional predictor with cross-attention | `Prediction` class in `model.py` |
-| **Attention Module** | Multi-head attention mechanism | `Attention` class in `model.py` |
-| **View Encoder** | Attention-enhanced encoding layer | `EncodeView` class in `model.py` |
+| Component | Description |
+|-----------|-------------|
+| **Autoencoder** | View-specific encoder-decoder with self-attention |
+| **Cross-View Predictor** | Bidirectional predictor with cross-attention |
+| **Attention Module** | Multi-head attention mechanism |
+| **View Encoder** | Attention-enhanced encoding layer |
 
 ### Loss Functions
 
@@ -269,8 +269,8 @@ config = dict(
 | Parameter | Description | Recommended Range |
 |-----------|-------------|-------------------|
 | `alpha` | Instance alignment strength | 10 |
-| `lambda1` | Prediction loss weight | 0.1 - 0.11 |
-| `lambda2` | Reconstruction loss weight | 0.1 |
+| `lambda1` | Prediction loss weight | 0.1 - 0.5 |
+| `lambda2` | Reconstruction loss weight | 0.1 - 0.5 |
 | `heads` | Number of attention heads | 1 - 16 |
 | `lr` | Learning rate | 1e-4 - 5e-4 |
 
