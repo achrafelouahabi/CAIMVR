@@ -26,7 +26,7 @@ parser.add_argument('--dataset', type=int, default='0', help='dataset id')
 parser.add_argument('--devices', type=str, default='0', help='gpu device ids')
 parser.add_argument('--print_num', type=int, default='50', help='gap of print evaluations')
 parser.add_argument('--eval_num', type=int, default='50', help='gap of print evaluations')
-parser.add_argument('--test_time', type=int, default='5', help='number of test times')
+parser.add_argument('--test_time', type=int, default='1', help='number of test times')
 
 args = parser.parse_args()
 dataset = dataset[args.dataset]
@@ -133,3 +133,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
