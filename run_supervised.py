@@ -21,13 +21,13 @@ warnings.simplefilter("ignore")
 
 dataset = {
     0: "Caltech101-7",
-    1: "Scene_15",
+    1: "hand",
     2: "NoisyMNIST",
     3: "LandUse_21",
-    4:"hand",
-    5:"Caltech101-7",
-    6:"3Sources",
-    7:"BBCSport"
+    4: "3Sources",
+    5: "Scene_15",
+    6: "Caltech101-20",
+    7: "BBCSport"
 }
 
 parser = argparse.ArgumentParser()
@@ -185,4 +185,5 @@ def main():
 
 
 if __name__ == '__main__':
+
     main()
