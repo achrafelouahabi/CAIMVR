@@ -180,7 +180,7 @@ def get_default_config(data_name):
                 epoch=2000,
                 alpha=10,
                 lambda2=0.1,
-                lambda1=0.1,
+                lambda1=0.11,
             ),
             seed=5,
         )
@@ -192,28 +192,28 @@ def get_default_config(data_name):
             Prediction=dict(
                 arch1=[128, 256, 128],
                 arch2=[128, 256, 128],
-                activations1='relu',
-                activations2='relu',
-                heads=6
+                activations1='gelu',
+                activations2='gelu',
+                heads=4
             ),
             Autoencoder=dict(
                 arch1=[6144, 2048, 512, 128],
                 arch2=[110, 1024, 512, 128],
-                activations1='relu',
-                activations2='relu',
+                activations1='gelu',
+                activations2='gelu',
                 batchnorm=True,
-                heads=6
+                heads=16
             ),
             training=dict(
-                lr=1.0e-4,
-                pretrain_epochs=0,
+                lr=4.0e-4,
+                pretrain_epochs=150,
                 batch_size=200,
-                epoch=2000,
+                epoch=1000,
                 alpha=10,
                 lambda2=0.1,
-                lambda1=0.1,
+                lambda1=0.11,
             ),
-            seed=3,
+            seed=1,
         )
 
 
