@@ -17,14 +17,20 @@ def load_data(config):
     X_list = []
     Y_list = []
 
+
     if data_name in ['Scene_15']:
       
         mat = sio.loadmat(os.path.join(main_dir, 'data', data_name+'.mat'))
         X = mat['X'][0]
-        X_list.append(X[0].astype('float32'))
-        X_list.append(X[1].astype('float32'))
+        for i in range(len(X)):
+          print('shape X',i,' :',np.shape(X[i]))
+        scaler = MinMaxScaler()
+        X_list.append(scaler.fit_transform(X[2]).astype(np.float32))
+        X_list.append(scaler.fit_transform(X[1]).astype(np.float32))
+        X_list.append(scaler.fit_transform(X[0]).astype(np.float32))
         Y_list.append(np.squeeze(mat['Y']))
         Y_list.append(np.squeeze(mat['Y']))
+
 
 
     elif data_name in ['hand']:
