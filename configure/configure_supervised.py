@@ -1,12 +1,12 @@
 def get_default_config(data_name):
     if data_name in ['Caltech101-7']:
         return dict(
-            seed=4,
+            seed=5,
             view=2,
             training=dict(
                 pretrain_epochs=150,
                 batch_size=256,
-                epoch=300,
+                epoch=500,
                 alpha=10,
                 lambda2=0.1,
                 lambda1=0.11,
@@ -71,7 +71,7 @@ def get_default_config(data_name):
             k=5,
             training=dict(
                 lr=1.0e-4,
-                pretrain_epochs=0,
+                pretrain_epochs=150,
                 batch_size=256,
                 epoch=200,
                 alpha=10,
