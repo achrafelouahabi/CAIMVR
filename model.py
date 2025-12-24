@@ -353,7 +353,7 @@ class CAIMVR:
                 mp_loss1 = F.mse_loss(x_hat1, bx1)
                 mp_loss2 = F.mse_loss(x_hat2, bx2)
 
-                # Instance contrastive
+                # instance distribution alignment
                 loss_ida = instance_distribution_alignment(z1, z2, config['training']['alpha'])
 
                 # Dual prediction
@@ -562,8 +562,8 @@ class CAIMVR:
                         mask_test, optimizer, device,test_id):
         """
         Two-phase supervised training:
-        - Phase 1 (pretrain_epochs): reconstruction + instance contrastive
-        - Phase 2 (finetune_epochs): adds dual prediction + category contrastive
+        - Phase 1 (pretrain_epochs): reconstruction + instance distribution alignment
+        - Phase 2 (finetune_epochs): adds dual prediction + supervised discriminative
         """
         total_epochs = config['training']['epoch']
         pretrain_epochs = config['training']['pretrain_epochs']  
@@ -606,10 +606,10 @@ class CAIMVR:
                 mp_loss1 = F.mse_loss(x_hat1, batch_x1)
                 mp_loss2 = F.mse_loss(x_hat2, batch_x2)
                 
-                # Instance contrastive
+                # instance distribution alignment
                 loss_ida = instance_distribution_alignment(z1, z2, config['training']['alpha'])
                 
-                # Total loss = reconstruction + instance contrastive
+                # Total loss = reconstruction + instance distribution alignment
                 all_loss = (
                      
                     config['training']['lambda2'] * (mp_loss1 + mp_loss2)
@@ -660,10 +660,10 @@ class CAIMVR:
                 mp_loss1 = F.mse_loss(x_hat1, batch_x1)
                 mp_loss2 = F.mse_loss(x_hat2, batch_x2)
                 
-                # Instance contrastive
+                # instance distribution alignment
                 loss_ida = instance_distribution_alignment(z1, z2, config['training']['alpha'])
                 
-                # Category contrastive
+                # supervised discriminative
                 loss_sd = supervised_discriminative(
                     torch.cat([z1, z2], dim=1), gt_batch, classes, flag_gt
                 )
@@ -835,8 +835,8 @@ class CAIMVR:
     def train_HAR(self, config, logger, accumulated_metrics, train_data, optimizer, device):
         """
         Two-phase training for Human Action Recognition:
-        - Phase 1 (pretrain_epochs): reconstruction + instance contrastive
-        - Phase 2 (finetune_epochs): adds dual prediction + category contrastive
+        - Phase 1 (pretrain_epochs): reconstruction + instance distribution alignment
+        - Phase 2 (finetune_epochs): adds dual prediction + supervised discriminative
         
         Args:
             config: parameters defined in configure.py
@@ -884,10 +884,10 @@ class CAIMVR:
             mp_loss1 = F.mse_loss(x_hat1, batch_x1)
             mp_loss2 = F.mse_loss(x_hat2, batch_x2)
             
-            # Instance contrastive
+            # instance distribution alignment
             loss_ida = instance_distribution_alignment(z1, z2, config['training']['alpha'])
             
-            # Total loss = reconstruction + instance contrastive
+            # Total loss = reconstruction + instance distribution alignment
             all_loss = (
                 
                 config['training']['lambda2'] * (mp_loss1 + mp_loss2)
@@ -935,10 +935,10 @@ class CAIMVR:
             mp_loss1 = F.mse_loss(x_hat1, batch_x1)
             mp_loss2 = F.mse_loss(x_hat2, batch_x2)
             
-            # Instance contrastive
+            # instance distribution alignment
             loss_ida = instance_distribution_alignment(z1, z2, config['training']['alpha'])
             
-            # Category contrastive
+            # supervised discriminative
             loss_sd = supervised_discriminative(
                 torch.cat([z1, z2], dim=1), gt_batch, classes, flag_gt
             )
@@ -1089,6 +1089,7 @@ class CAIMVR:
             self.txt2img.train()
 
         
+
 
 
 
