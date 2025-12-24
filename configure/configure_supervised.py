@@ -35,31 +35,31 @@ def get_default_config(data_name):
         return dict(
             seed=7,
             view=2,
+            k=15,
             training=dict(
-                lr=1.0e-4,
-                pretrain_epochs=150,
-                batch_size=256,
-                epoch=200,
-                epoch_3=300,
+                lr=1.0e-3,
+                pretrain_epochs=50,
+                batch_size=1024,
+                epoch=500,
                 alpha=10,
                 lambda2=0.1,
                 lambda1=0.11,
             
             ),
             Autoencoder=dict(
-                arch1=[20, 1024, 1024, 1024, 128],
+                arch1=[40, 1024, 1024, 1024, 128],
                 arch2=[59, 1024, 1024, 1024, 128],
                 activations1='relu',
                 activations2='relu',
                 batchnorm=True,
-                heads=1
+                heads=16
             ),
             Prediction=dict(
                 arch1=[128, 256, 128],
                 arch2=[128, 256, 128],
                 activations1='relu',
                 activations2='relu',
-                heads=2
+                heads=4
             ) )
 
 
