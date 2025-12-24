@@ -158,7 +158,6 @@ python run_clustering.py \
     --dataset 0 \
     --missing_rate 0.3 \
     --devices 0 \
-    --test_time 5 \
     --print_num 50 \
     --eval_num 50
 ```
@@ -180,7 +179,6 @@ python run_supervised.py \
     --dataset 0 \
     --missing_rate 0.3 \
     --devices 0 \
-    --test_time 5 \
     --print_num 50 \
     --eval_num 50
 ```
@@ -202,7 +200,6 @@ python run_supervised.py \
 python run_HAR.py \
     --dataset 0 \
     --devices 0 \
-    --test_time 5 \
     --print_num 50 \
     --eval_num 50
 ```
@@ -219,7 +216,6 @@ python run_HAR.py \
 |----------|-------------|---------|
 | `--dataset` | Dataset ID (see tables above) | 0 |
 | `--devices` | GPU device ID | 0 |
-| `--test_time` | Number of test runs | 5 |
 | `--print_num` | Print interval (epochs) | 50 |
 | `--eval_num` | Evaluation interval (epochs) | 50 |
 
