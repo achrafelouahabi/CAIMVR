@@ -85,7 +85,7 @@ def get_default_config(data_name):
                 arch2=[216, 1024, 1024, 1024, 128],
                 activations1='gelu',
                 activations2='gelu',
-                batchnorm=False,
+                batchnorm=True,
                 heads=16
             ),
             Prediction=dict(
