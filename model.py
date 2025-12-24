@@ -889,7 +889,7 @@ class CAIMVR:
             
             # Total loss = reconstruction + instance contrastive
             all_loss = (
-                loss_ida + 
+                
                 config['training']['lambda2'] * (mp_loss1 + mp_loss2)
             )
             
@@ -1089,5 +1089,6 @@ class CAIMVR:
             self.txt2img.train()
 
         
+
 
 
