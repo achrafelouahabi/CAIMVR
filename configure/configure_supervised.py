@@ -208,7 +208,7 @@ def get_default_config(data_name):
                 lr=4.0e-4,
                 pretrain_epochs=150,
                 batch_size=200,
-                epoch=500,
+                epoch=1000,
                 alpha=10,
                 lambda2=0.1,
                 lambda1=0.11,
