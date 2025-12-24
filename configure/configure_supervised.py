@@ -213,7 +213,7 @@ def get_default_config(data_name):
                 lambda2=0.1,
                 lambda1=0.11,
             ),
-            seed=10,
+            seed=6,
         )
 
 
