@@ -10,7 +10,7 @@ import json
 from model import CAIMVR
 from utils.util import cal_HAR
 from utils.logger_ import get_logger
-from utils.datasets import data_loader_HAR
+from utils.datasets_supervised import data_loader_HAR
 from configure.configure_supervised import get_default_config
 import collections
 import warnings
@@ -252,4 +252,5 @@ def main():
 
 
 if __name__ == '__main__':
+
     main()
