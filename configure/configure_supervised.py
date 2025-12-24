@@ -1,5 +1,5 @@
 def get_default_config(data_name):
-    if data_name in ['Caltech101-20']:
+    if data_name in ['Caltech101-7']:
         return dict(
             seed=4,
             view=2,
@@ -156,42 +156,67 @@ def get_default_config(data_name):
                 lambda1=0.11,
             ),
         )
-
-    elif data_name in ['MSRC_v1']:
+    elif data_name in ['DHA']:
+        """The default configs."""
         return dict(
             missing_rate=0,
-            
             Prediction=dict(
-                arch1=[64, 64, 64],  
-                arch2=[64, 64, 64],  
-                activations1='gelu',
-                activations2='gelu',
-                heads=1
+                arch1=[128, 256, 128],
+                arch2=[128, 256, 128],
+                activations1='relu',
+                activations2='relu',
             ),
-            
             Autoencoder=dict(
-                arch1=[512, 156],     
-                arch2=[256, 156],
-             
-                activations1='gelu',
-                activations2='gelu',
+                arch1=[6144, 2048, 512, 64],
+                arch2=[110, 1024, 512, 64],
+                activations1='relu',
+                activations2='relu',
                 batchnorm=True,
-                heads=1
             ),
-            
             training=dict(
-                lr=1e-3,                    
-                pretrain_epochs=50, 
-                batch_size=34,
-                epoch=300, 
-                epoch_3=500,
-                alpha=10.0,
-                lambda1=0.11,
+                lr=1.0e-4,
+                pretrain_epochs=150,
+                batch_size=128,
+                epoch=2000,
+                alpha=10,
                 lambda2=0.1,
+                lambda1=0.1,
             ),
-            view=2,
             seed=5,
         )
+
+    elif data_name in ['UWA30']:
+        """The default configs."""
+        return dict(
+            missing_rate=0,
+            Prediction=dict(
+                arch1=[128, 256, 128],
+                arch2=[128, 256, 128],
+                activations1='relu',
+                activations2='relu',
+                heads=6
+            ),
+            Autoencoder=dict(
+                arch1=[6144, 2048, 512, 128],
+                arch2=[110, 1024, 512, 128],
+                activations1='relu',
+                activations2='relu',
+                batchnorm=True,
+                heads=6
+            ),
+            training=dict(
+                lr=1.0e-4,
+                pretrain_epochs=0,
+                batch_size=200,
+                epoch=2000,
+                alpha=10,
+                lambda2=0.1,
+                lambda1=0.1,
+            ),
+            seed=3,
+        )
+
+
 
 
 
