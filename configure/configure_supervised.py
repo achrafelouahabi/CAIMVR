@@ -68,6 +68,7 @@ def get_default_config(data_name):
         return dict(
             seed=5,
             view=2,
+            k=5,
             training=dict(
                 lr=1.0e-4,
                 pretrain_epochs=0,
