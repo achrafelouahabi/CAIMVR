@@ -832,175 +832,175 @@ class CAIMVR:
         fused = torch.cat([latent_img, latent_txt], dim=1).cpu().numpy()
         return fused
 
-        def train_HAR(self, config, logger, accumulated_metrics, train_data, optimizer, device):
-            """
-            Two-phase training for Human Action Recognition:
-            - Phase 1 (pretrain_epochs): reconstruction + instance contrastive
-            - Phase 2 (finetune_epochs): adds dual prediction + category contrastive
+    def train_HAR(self, config, logger, accumulated_metrics, train_data, optimizer, device):
+        """
+        Two-phase training for Human Action Recognition:
+        - Phase 1 (pretrain_epochs): reconstruction + instance contrastive
+        - Phase 2 (finetune_epochs): adds dual prediction + category contrastive
+        
+        Args:
+            config: parameters defined in configure.py
+            logger: print the information
+            accumulated_metrics: list of metrics
+            train_data: HAR data object
+            optimizer: adam optimizer
+            device: cuda device
+        Returns:
+            classification performance: RGB, Depth, RGB-D, onlyRGB, onlyDepth accuracy
+        """
+        total_epochs = config['training']['epoch']
+        pretrain_epochs = config['training']['pretrain_epochs']  # e.g., 500
+        finetune_epochs = total_epochs  # e.g., 1000
+        batch_size = config['training']['batch_size']
+        
+        classes = train_data.cluster
+        flag_gt = False
+        
+        # Initialize metrics
+        for key in ['RGB', 'Depth', 'RGB-D', 'onlyRGB', 'onlyDepth']:
+            if key not in accumulated_metrics:
+                accumulated_metrics[key] = []
+        
+        # -------------------------------
+        # Phase 1: Pretraining
+        # -------------------------------
+        print("\n=== Starting Phase 1: Pretraining (HAR) ===")
+        for epoch in range(pretrain_epochs):
+            loss_total = loss_r1 = loss_r2 = loss_ida_total = 0
             
-            Args:
-                config: parameters defined in configure.py
-                logger: print the information
-                accumulated_metrics: list of metrics
-                train_data: HAR data object
-                optimizer: adam optimizer
-                device: cuda device
-            Returns:
-                classification performance: RGB, Depth, RGB-D, onlyRGB, onlyDepth accuracy
-            """
-            total_epochs = config['training']['epoch']
-            pretrain_epochs = config['training']['pretrain_epochs']  # e.g., 500
-            finetune_epochs = total_epochs  # e.g., 1000
-            batch_size = config['training']['batch_size']
+            batch_x1, batch_x2, gt_batch = train_data.train_next_batch(batch_size)
+            batch_x1 = torch.from_numpy(np.array(batch_x1)).float().to(device)
+            batch_x2 = torch.from_numpy(np.array(batch_x2)).float().to(device)
+            gt_batch = [np.argmax(one_hot) for one_hot in gt_batch]
+            gt_batch = torch.from_numpy(np.array(gt_batch)).to(device)
             
-            classes = train_data.cluster
-            flag_gt = False
+            # Encoders
+            z1, xz1 = self.autoencoder1.encoder(batch_x1)
+            z2, xz2 = self.autoencoder2.encoder(batch_x2)
             
-            # Initialize metrics
-            for key in ['RGB', 'Depth', 'RGB-D', 'onlyRGB', 'onlyDepth']:
-                if key not in accumulated_metrics:
-                    accumulated_metrics[key] = []
+            # Reconstruction
+            x_hat1 = self.autoencoder1.decoder(xz1)
+            x_hat2 = self.autoencoder2.decoder(xz2)
+            mp_loss1 = F.mse_loss(x_hat1, batch_x1)
+            mp_loss2 = F.mse_loss(x_hat2, batch_x2)
             
-            # -------------------------------
-            # Phase 1: Pretraining
-            # -------------------------------
-            print("\n=== Starting Phase 1: Pretraining (HAR) ===")
-            for epoch in range(pretrain_epochs):
-                loss_total = loss_r1 = loss_r2 = loss_ida_total = 0
-                
-                batch_x1, batch_x2, gt_batch = train_data.train_next_batch(batch_size)
-                batch_x1 = torch.from_numpy(np.array(batch_x1)).float().to(device)
-                batch_x2 = torch.from_numpy(np.array(batch_x2)).float().to(device)
-                gt_batch = [np.argmax(one_hot) for one_hot in gt_batch]
-                gt_batch = torch.from_numpy(np.array(gt_batch)).to(device)
-                
-                # Encoders
-                z1, xz1 = self.autoencoder1.encoder(batch_x1)
-                z2, xz2 = self.autoencoder2.encoder(batch_x2)
-                
-                # Reconstruction
-                x_hat1 = self.autoencoder1.decoder(xz1)
-                x_hat2 = self.autoencoder2.decoder(xz2)
-                mp_loss1 = F.mse_loss(x_hat1, batch_x1)
-                mp_loss2 = F.mse_loss(x_hat2, batch_x2)
-                
-                # Instance contrastive
-                loss_ida = instance_distribution_alignment(z1, z2, config['training']['alpha'])
-                
-                # Total loss = reconstruction + instance contrastive
-                all_loss = (
-                    loss_ida + 
-                    config['training']['lambda2'] * (mp_loss1 + mp_loss2)
-                )
-                
-                optimizer.zero_grad()
-                all_loss.backward()
-                optimizer.step()
-                
-                loss_total += all_loss.item()
-                loss_r1 += mp_loss1.item()
-                loss_r2 += mp_loss2.item()
-                loss_ida_total += loss_ida.item()
-                
-                if (epoch + 1) % config['print_num'] == 0:
-                    output = (f"[Pretrain] Epoch {epoch+1}/{pretrain_epochs} | "
-                            f"mp_loss1={loss_r1:.4f} mp_loss2={loss_r2:.4f} "
-                            f"ICL={loss_ida_total:.4e} Total={loss_total:.4e}")
-                    print("\033[2;29m" + output + "\033[0m")
-                    
-                    # Evaluation during pretraining
-                    self._evaluate_har(train_data, config, device, accumulated_metrics, logger)
+            # Instance contrastive
+            loss_ida = instance_distribution_alignment(z1, z2, config['training']['alpha'])
             
-            # -------------------------------
-            # Phase 2: Fine-tuning
-            # -------------------------------
-            print("\n=== Starting Phase 2: Fine-tuning (HAR) ===")
-            for epoch in range(finetune_epochs):
-                loss_total = loss_r1 = loss_r2 = 0
-                loss_ida_total = loss_sd_total = loss_map1 = loss_map2 = 0
-                
-                batch_x1, batch_x2, gt_batch = train_data.train_next_batch(batch_size)
-                batch_x1 = torch.from_numpy(np.array(batch_x1)).float().to(device)
-                batch_x2 = torch.from_numpy(np.array(batch_x2)).float().to(device)
-                gt_batch = [np.argmax(one_hot) for one_hot in gt_batch]
-                gt_batch = torch.from_numpy(np.array(gt_batch)).to(device)
-                
-                # Encoders
-                z1, xz1 = self.autoencoder1.encoder(batch_x1)
-                z2, xz2 = self.autoencoder2.encoder(batch_x2)
-                
-                # Reconstruction
-                x_hat1 = self.autoencoder1.decoder(xz1)
-                x_hat2 = self.autoencoder2.decoder(xz2)
-                mp_loss1 = F.mse_loss(x_hat1, batch_x1)
-                mp_loss2 = F.mse_loss(x_hat2, batch_x2)
-                
-                # Instance contrastive
-                loss_ida = instance_distribution_alignment(z1, z2, config['training']['alpha'])
-                
-                # Category contrastive
-                loss_sd = supervised_discriminative(
-                    torch.cat([z1, z2], dim=1), gt_batch, classes, flag_gt
-                )
-                
-                # Dual prediction with proper tensor reshaping
-                
-                pred12, z12 = self.img2txt(z1, z2)
-                pred21, z21 = self.txt2img(z2, z1)
-
-                z12 = self.autoencoder1.soft(z12)
-                z21 = self.autoencoder1.soft(z21)
-                
-            
-                loss_lsc = instance_distribution_alignment(z12, z21, 1)
-                
-                bp_loss = F.mse_loss(pred12, z2) + F.mse_loss(pred21, z1)
-                
-                # Total loss
-                all_loss = (
-                    loss_ida +
-                    config['training']['lambda2'] * (mp_loss1 + mp_loss2) +
-                    config['training']['lambda1'] * bp_loss +
-                    loss_lsc+
-                    loss_sd
-                )
-                
-                optimizer.zero_grad()
-                all_loss.backward()
-                optimizer.step()
-                
-                # Accumulate losses
-                loss_total += all_loss.item()
-                loss_r1 += mp_loss1.item()
-                loss_r2 += mp_loss2.item()
-                loss_map1 += F.mse_loss(pred12, z2).item()
-                loss_map2 += F.mse_loss(pred21, z1).item()
-                loss_ida_total += loss_ida.item()
-                loss_sd_total += loss_sd.item()
-                
-                if (epoch + 1) % config['print_num'] == 0:
-                    output = (f"[Finetune] Epoch {epoch+1}/{finetune_epochs} | "
-                            f"mp_loss1={loss_r1:.4f} mp_loss2={loss_r2:.4f} "
-                            f"Map1={loss_map1:.4f} Map2={loss_map2:.4f} "
-                            f"ICL={loss_ida_total:.4e} sd={loss_sd_total:.4e} "
-                            f"Total={loss_total:.4e}")
-                    print("\033[2;29m" + output + "\033[0m")
-                    
-                    # Evaluation during fine-tuning
-                    self._evaluate_har(train_data, config, device, accumulated_metrics, logger)
-            
-
-            idx_best = accumulated_metrics['RGB-D'].index(max(accumulated_metrics['RGB-D'])) if accumulated_metrics['RGB-D'] else 0
-            return (
-      
-                accumulated_metrics['RGB'][idx_best] if accumulated_metrics['RGB'] else 0,
-                accumulated_metrics['Depth'][idx_best] if accumulated_metrics['Depth'] else 0,
-                accumulated_metrics['RGB-D'][idx_best] if accumulated_metrics['RGB-D'] else 0,
-                accumulated_metrics['onlyRGB'][idx_best] if accumulated_metrics['onlyRGB'] else 0,
-                accumulated_metrics['onlyDepth'][idx_best] if accumulated_metrics['onlyDepth'] else 0,
-                accumulated_metrics,
-                (idx_best + 1) * config['eval_num'] if accumulated_metrics['RGB'] else 0,
+            # Total loss = reconstruction + instance contrastive
+            all_loss = (
+                loss_ida + 
+                config['training']['lambda2'] * (mp_loss1 + mp_loss2)
             )
+            
+            optimizer.zero_grad()
+            all_loss.backward()
+            optimizer.step()
+            
+            loss_total += all_loss.item()
+            loss_r1 += mp_loss1.item()
+            loss_r2 += mp_loss2.item()
+            loss_ida_total += loss_ida.item()
+            
+            if (epoch + 1) % config['print_num'] == 0:
+                output = (f"[Pretrain] Epoch {epoch+1}/{pretrain_epochs} | "
+                        f"mp_loss1={loss_r1:.4f} mp_loss2={loss_r2:.4f} "
+                        f"ICL={loss_ida_total:.4e} Total={loss_total:.4e}")
+                print("\033[2;29m" + output + "\033[0m")
+                
+                # Evaluation during pretraining
+                self._evaluate_har(train_data, config, device, accumulated_metrics, logger)
+        
+        # -------------------------------
+        # Phase 2: Fine-tuning
+        # -------------------------------
+        print("\n=== Starting Phase 2: Fine-tuning (HAR) ===")
+        for epoch in range(finetune_epochs):
+            loss_total = loss_r1 = loss_r2 = 0
+            loss_ida_total = loss_sd_total = loss_map1 = loss_map2 = 0
+            
+            batch_x1, batch_x2, gt_batch = train_data.train_next_batch(batch_size)
+            batch_x1 = torch.from_numpy(np.array(batch_x1)).float().to(device)
+            batch_x2 = torch.from_numpy(np.array(batch_x2)).float().to(device)
+            gt_batch = [np.argmax(one_hot) for one_hot in gt_batch]
+            gt_batch = torch.from_numpy(np.array(gt_batch)).to(device)
+            
+            # Encoders
+            z1, xz1 = self.autoencoder1.encoder(batch_x1)
+            z2, xz2 = self.autoencoder2.encoder(batch_x2)
+            
+            # Reconstruction
+            x_hat1 = self.autoencoder1.decoder(xz1)
+            x_hat2 = self.autoencoder2.decoder(xz2)
+            mp_loss1 = F.mse_loss(x_hat1, batch_x1)
+            mp_loss2 = F.mse_loss(x_hat2, batch_x2)
+            
+            # Instance contrastive
+            loss_ida = instance_distribution_alignment(z1, z2, config['training']['alpha'])
+            
+            # Category contrastive
+            loss_sd = supervised_discriminative(
+                torch.cat([z1, z2], dim=1), gt_batch, classes, flag_gt
+            )
+            
+            # Dual prediction with proper tensor reshaping
+            
+            pred12, z12 = self.img2txt(z1, z2)
+            pred21, z21 = self.txt2img(z2, z1)
+
+            z12 = self.autoencoder1.soft(z12)
+            z21 = self.autoencoder1.soft(z21)
+            
+        
+            loss_lsc = instance_distribution_alignment(z12, z21, 1)
+            
+            bp_loss = F.mse_loss(pred12, z2) + F.mse_loss(pred21, z1)
+            
+            # Total loss
+            all_loss = (
+                loss_ida +
+                config['training']['lambda2'] * (mp_loss1 + mp_loss2) +
+                config['training']['lambda1'] * bp_loss +
+                loss_lsc+
+                loss_sd
+            )
+            
+            optimizer.zero_grad()
+            all_loss.backward()
+            optimizer.step()
+            
+            # Accumulate losses
+            loss_total += all_loss.item()
+            loss_r1 += mp_loss1.item()
+            loss_r2 += mp_loss2.item()
+            loss_map1 += F.mse_loss(pred12, z2).item()
+            loss_map2 += F.mse_loss(pred21, z1).item()
+            loss_ida_total += loss_ida.item()
+            loss_sd_total += loss_sd.item()
+            
+            if (epoch + 1) % config['print_num'] == 0:
+                output = (f"[Finetune] Epoch {epoch+1}/{finetune_epochs} | "
+                        f"mp_loss1={loss_r1:.4f} mp_loss2={loss_r2:.4f} "
+                        f"Map1={loss_map1:.4f} Map2={loss_map2:.4f} "
+                        f"ICL={loss_ida_total:.4e} sd={loss_sd_total:.4e} "
+                        f"Total={loss_total:.4e}")
+                print("\033[2;29m" + output + "\033[0m")
+                
+                # Evaluation during fine-tuning
+                self._evaluate_har(train_data, config, device, accumulated_metrics, logger)
+        
+
+        idx_best = accumulated_metrics['RGB-D'].index(max(accumulated_metrics['RGB-D'])) if accumulated_metrics['RGB-D'] else 0
+        return (
+  
+            accumulated_metrics['RGB'][idx_best] if accumulated_metrics['RGB'] else 0,
+            accumulated_metrics['Depth'][idx_best] if accumulated_metrics['Depth'] else 0,
+            accumulated_metrics['RGB-D'][idx_best] if accumulated_metrics['RGB-D'] else 0,
+            accumulated_metrics['onlyRGB'][idx_best] if accumulated_metrics['onlyRGB'] else 0,
+            accumulated_metrics['onlyDepth'][idx_best] if accumulated_metrics['onlyDepth'] else 0,
+            accumulated_metrics,
+            (idx_best + 1) * config['eval_num'] if accumulated_metrics['RGB'] else 0,
+        )
 
 
     def _evaluate_har(self, train_data, config, device, accumulated_metrics, logger):
@@ -1089,4 +1089,5 @@ class CAIMVR:
             self.txt2img.train()
 
         
+
 
