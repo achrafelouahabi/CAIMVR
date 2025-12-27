@@ -163,22 +163,22 @@ def get_default_config(data_name):
             Prediction=dict(
                 arch1=[128, 256, 128],
                 arch2=[128, 256, 128],
-                activations1='relu',
-                activations2='relu',
+                activations1='gelu',
+                activations2='gelu',
                 heads=6
             ),
             Autoencoder=dict(
                 arch1=[6144, 2048, 512, 64],
                 arch2=[110, 1024, 512, 64],
-                activations1='relu',
-                activations2='relu',
+                activations1='gelu',
+                activations2='gelu',
                 batchnorm=True,
                 heads=6
             ),
             training=dict(
-                lr=1.0e-4,
+                lr=5.0e-4,
                 pretrain_epochs=150,
-                batch_size=128,
+                batch_size=100,
                 epoch=2000,
                 alpha=10,
                 lambda2=0.1,
