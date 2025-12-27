@@ -165,6 +165,7 @@ def get_default_config(data_name):
                 arch2=[128, 256, 128],
                 activations1='relu',
                 activations2='relu',
+                heads=6
             ),
             Autoencoder=dict(
                 arch1=[6144, 2048, 512, 64],
@@ -172,6 +173,7 @@ def get_default_config(data_name):
                 activations1='relu',
                 activations2='relu',
                 batchnorm=True,
+                heads=6
             ),
             training=dict(
                 lr=1.0e-4,
