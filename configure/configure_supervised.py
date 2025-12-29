@@ -184,7 +184,7 @@ def get_default_config(data_name):
                 lambda2=0.1,
                 lambda1=0.11,
             ),
-            seed=5,
+            seed=26,
         )
 
     elif data_name in ['UWA30']:
