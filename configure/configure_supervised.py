@@ -176,7 +176,7 @@ def get_default_config(data_name):
                 heads=6
             ),
             training=dict(
-                lr=1.0e-3,
+                lr=5.0e-4,
                 pretrain_epochs=150,
                 batch_size=100,
                 epoch=2000,
